@@ -11,14 +11,18 @@ public class Main extends PApplet {
 
 
     int[] control = {0,0,0,0}; //up, down, right, left // control array containing information about what key is pressed
+
+    // information 'bout look like color, size or shadow tilt
     Look look = new Look(this,new int[]{0,0,0}, new PVector(10,10),new PVector(5,5));
     Look spawnerLook = new Look(this,new int[]{0,150,0}, new PVector(20,20),new PVector(5,5));
     Look playerLook = new Look(this,new int[]{214, 133, 47}, new PVector(10,10),new PVector(5,5));
+
     Player player;
     Spawner spawner;
     Road road;
-    int cycles = 1;
-    boolean routeDisplay = false;
+
+    int cycles = 1; // number of cycles program makes for every frame
+    boolean routeDisplay = false; // boolean to show route enemies make
 
     public void setup(){
         rectMode(CENTER);
@@ -29,9 +33,11 @@ public class Main extends PApplet {
     }
 
     public void draw(){
-        for(int k = 0;k<cycles;k++) {
+        for(int k = 0;k<cycles;k++) { // for certain number of cycles
             background(227, 217, 172);
 
+            // randomize player's position if all enemies are dead and spawn new is enabled
+            // clear player's bullet array, update road position (* and create some still bullets around player)
             if(spawner.population.enemies.size()==0 && spawner.spawnNew){
                 player.bullets.clear();
                 player.position = new PVector(random(width),random(height));
@@ -39,9 +45,10 @@ public class Main extends PApplet {
                 //player.shootAndStop(15);
             }
 
-            road.show();
+
+            road.show(); // shows road, creates road's polygon
             spawner.show();
-            spawner.act();
+            spawner.act(); // create new generation if conditions are met
 
 
 
@@ -55,6 +62,7 @@ public class Main extends PApplet {
                     //ray.show();
                 }
 
+                enemy.marchingRay.moveRay(road,enemy.rotation);
                 enemy.checkForRoad(road.polygon);
                 enemy.update();
                 enemy.move();

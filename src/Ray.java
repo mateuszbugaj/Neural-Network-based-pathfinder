@@ -10,10 +10,24 @@ public class Ray {
     float angle;
     float raySight = 200;
 
+    float smallestDistToRoad;
+    float bestAngle;
+
     public Ray(PApplet p, PVector pos, float angle,float raySight){
         this.p = p;
         this.pos = pos;
         this.angle = angle;
+        this.raySight = raySight;
+        dir = PVector.fromAngle(angle);
+        pointPos = new PVector();
+    }
+
+    public Ray(PApplet p, PVector pos,float raySight){
+        this.p = p;
+        this.pos = pos;
+        smallestDistToRoad = p.width;
+        bestAngle = 0;
+        this.angle = -180;
         this.raySight = raySight;
         dir = PVector.fromAngle(angle);
         pointPos = new PVector();
@@ -74,5 +88,30 @@ public class Ray {
             dist = smallestDsit; // dist to the closest
         }
 
+    }
+
+    public void moveRay(Road road, float rotation){
+
+        smallestDistToRoad = p.width;
+        PVector bestDir;
+                for(int i = -180;i<180;i++) {
+                    updateAngle(p.degrees(rotation)+i);
+                    cast(road);
+                    if(dist<smallestDistToRoad){
+                        smallestDistToRoad = dist;
+                        bestDir = dir;
+                        bestAngle = bestDir.heading();
+                    }
+                }
+
+//                p.noFill();
+//                p.strokeWeight(1);
+//                p.stroke(232, 48, 12);
+//                p.ellipse(pos.x,pos.y,smallestDistToRoad*2,smallestDistToRoad*2);
+//                    p.pushMatrix();{
+//                        p.translate(pos.x,pos.y);
+//                        p.stroke(60, 207, 37);
+//                        p.line(0,0, p.cos(bestAngle)*smallestDistToRoad,p.sin(bestAngle)*smallestDistToRoad);
+//                    } p.popMatrix();
     }
 }

@@ -39,9 +39,12 @@ public class Enemy extends Character{
 
     //double[] readingsProjectile = new double[8];
     float angleStep = p.radians(10);
-    float[][] sensors = new float[8][2];
+    float[][] sensors = new float[12][2];
     float[] rayReadings = new float[rays.length];
     double[] readingsPlayer = new double[sensors.length];
+
+    Ray marchingRay;
+    float distToRoad;
 
     int n = 0;
     PImage sprite;
@@ -120,11 +123,10 @@ public class Enemy extends Character{
         }
 
         sensors();
-
         brainActivity();
 
-        //rotation = 0;
-        //speed = 0;
+        rotation = 0;
+        speed = 0.1f;
     }
 
     public void brainActivity(){
@@ -162,7 +164,7 @@ public class Enemy extends Character{
     public void sensors(){
         // turn target angle into reading of a sensor
         for(int i=0;i<sensors.length;i++){
-            if(i==4){ // special "ass" sensor which require special conditions
+            if(i==6){ // special "ass" sensor which require special conditions
                 if(targetAngle<sensors[i][0] || targetAngle>sensors[i][1]){
                     readingsPlayer[i] = 1;
                 } else {
@@ -186,31 +188,38 @@ public class Enemy extends Character{
     }
 
     void createRays(){
-        //rays[0] = new Ray(p,position,p.radians(10),200);
         rays[0] = new Ray(p,position,p.radians(60),200);
         rays[1] = new Ray(p,position,p.radians(160),200);
-        //rays[3] = new Ray(p,position,p.radians(-10),200);
         rays[2] = new Ray(p,position,p.radians(-60),200);
         rays[3] = new Ray(p,position,p.radians(-160),200);
+        marchingRay = new Ray(p,position,300);
     }
 
     void createSensors(){
         sensors[0][0] = p.radians(10);
         sensors[0][1] = p.radians(-10);
         sensors[1][0] = p.radians(-10);
-        sensors[1][1] = p.radians(-30);
-        sensors[2][0] = p.radians(-30);
-        sensors[2][1] = p.radians(-60);
-        sensors[3][0] = p.radians(-60);
-        sensors[3][1] = p.radians(-160);
-        sensors[4][0] = p.radians(-160);
-        sensors[4][1] = p.radians(160);
-        sensors[5][0] = p.radians(160);
-        sensors[5][1] = p.radians(60);
-        sensors[6][0] = p.radians(60);
-        sensors[6][1] = p.radians(30);
-        sensors[7][0] = p.radians(30);
-        sensors[7][1] = p.radians(10);
+        sensors[1][1] = p.radians(-25);
+        sensors[2][0] = p.radians(-25);
+        sensors[2][1] = p.radians(-40);
+        sensors[3][0] = p.radians(-40);
+        sensors[3][1] = p.radians(-60);
+        sensors[4][0] = p.radians(-60);
+        sensors[4][1] = p.radians(-120);
+        sensors[5][0] = p.radians(-120);
+        sensors[5][1] = p.radians(-160);
+        sensors[6][0] = p.radians(-160);
+        sensors[6][1] = p.radians(160);
+        sensors[7][0] = p.radians(160);
+        sensors[7][1] = p.radians(120);
+        sensors[8][0] = p.radians(120);
+        sensors[8][1] = p.radians(60);
+        sensors[9][0] = p.radians(60);
+        sensors[9][1] = p.radians(40);
+        sensors[10][0] = p.radians(40);
+        sensors[10][1] = p.radians(25);
+        sensors[11][0] = p.radians(25);
+        sensors[11][1] = p.radians(10);
     }
 
     public void checkForRoad(Polygon road){
@@ -268,6 +277,21 @@ public class Enemy extends Character{
             }
             p.popMatrix();
 
+        // shortest line to the road
+        p.pushMatrix();
+        {
+            p.translate(position.x, position.y);
+            //p.rotate(rotation);
+            p.stroke(207, 37, 167);
+            //p.line(0, 0, p.cos(marchingRay.bestAngle) * marchingRay.smallestDistForAngle, p.sin(marchingRay.bestAngle) * marchingRay.smallestDistForAngle);
+            p.line(0,0, p.cos(marchingRay.bestAngle)*marchingRay.smallestDistToRoad,p.sin(marchingRay.bestAngle)*marchingRay.smallestDistToRoad);
+            p.noFill();
+            p.strokeWeight(1);
+            p.stroke(232, 48, 12);
+            p.ellipse(0,0,marchingRay.smallestDistToRoad*2,marchingRay.smallestDistToRoad*2);
+        }
+        p.popMatrix();
+
         // rotations info
         p.pushMatrix();
         {
@@ -315,7 +339,7 @@ public class Enemy extends Character{
 
         //p.noStroke();
         p.strokeWeight(1);
-        p.stroke(0);
+        p.stroke(0,15);
 
         p.pushMatrix();{
             p.translate(position.x,position.y);

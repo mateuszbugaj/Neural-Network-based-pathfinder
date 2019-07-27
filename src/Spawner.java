@@ -15,7 +15,7 @@ public class Spawner extends Character{
     public Spawner(PApplet p, PVector position, Look look, float speed, float health,Look enemyLook) {
         super(p, position, look, speed, health);
         this.enemyLook = enemyLook;
-        population = new Population(p,position.copy(),enemyLook,50);
+        population = new Population(p,position.copy(),enemyLook,1);
         population.newPopulation();
         theBestCurrentEnemy = population.enemies.get(0);
         theBestEnemyOfGeneration = population.enemies.get(0);

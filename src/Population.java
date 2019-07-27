@@ -33,7 +33,7 @@ public class Population {
         for(int i = 0;i<populationNumber;i++){
             enemies.add(new Enemy(p,initialPosition.copy(),enemyLook,2,1,enemyToClone.brain.copy()));
             enemies.get(i).index = i;
-            enemies.get(i).brain.mutate(0.08);
+            enemies.get(i).brain.mutate(0.1);
         }
         generationCount++;
     }
