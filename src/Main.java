@@ -55,34 +55,25 @@ public class Main extends PApplet {
             for (Enemy enemy : spawner.population.enemies) {
                 enemy.frameCountFactor = cycles;
                 enemy.updateTargetPos(player.position);
+                enemy.update();
 
                 for(Ray ray:enemy.rays){
                     ray.updateAngle(enemy.rotation);
                     ray.cast(road);
-                    //ray.show();
+                    //ray.cast(road.lines[2]);
                 }
 
                 enemy.marchingRay.moveRay(road,enemy.rotation);
                 enemy.checkForRoad(road.polygon);
-                enemy.update();
                 enemy.move();
                 enemy.show();
-                enemy.showRoute(routeDisplay); // show route only if the option is enabled
+                enemy.route(routeDisplay); // show route only if the option is enabled
                 enemy.findClosestBullet(player.bullets);
                 enemy.timeLived++;
 
                 if(enemy.isDead == true && enemy.targetDist<10){
                     spawner.population.enemiesDead.add(enemy);
                 }
-            }
-
-            // show sensors but only for one enemy
-            if (spawner.population.enemies.size() > 0 && routeDisplay) {
-                spawner.population.enemies.get(0).showSensors();
-                for(Ray ray:spawner.population.enemies.get(0).rays){
-                    ray.show();
-                }
-                spawner.population.enemies.get(0).showInfo();
             }
 
             for(Projectile projectile:player.bullets){
@@ -224,8 +215,24 @@ public class Main extends PApplet {
     }
 
     public void mousePressed(){
-        player.shoot();
-    }
-
-
+        if(mouseButton == LEFT){
+            player.shoot();
+        } else if (mouseButton == RIGHT){
+            for(Enemy enemy:spawner.population.enemies){
+                if(mouseX <= enemy.position.x+enemy.look.dimensions.x &&
+                        mouseX >= enemy.position.x-enemy.look.dimensions.x &&
+                        mouseY >= enemy.position.y-enemy.look.dimensions.y &&
+                        mouseY <= enemy.position.y+enemy.look.dimensions.y){
+                    for(Enemy enemy2:spawner.population.enemies) {
+                        enemy2.showInfoBoolean = false;
+                        }
+                    enemy.showInfoBoolean = true;
+                    break;
+                    }
+                }
+            }
+        }
 }
+
+
+

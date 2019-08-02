@@ -2,7 +2,6 @@ import basicneuralnetwork.NeuralNetwork;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-import java.util.ArrayList;
 
 public class Spawner extends Character{
     Population population;
@@ -15,7 +14,7 @@ public class Spawner extends Character{
     public Spawner(PApplet p, PVector position, Look look, float speed, float health,Look enemyLook) {
         super(p, position, look, speed, health);
         this.enemyLook = enemyLook;
-        population = new Population(p,position.copy(),enemyLook,1);
+        population = new Population(p,position.copy(),enemyLook,80);
         population.newPopulation();
         theBestCurrentEnemy = population.enemies.get(0);
         theBestEnemyOfGeneration = population.enemies.get(0);
@@ -23,8 +22,8 @@ public class Spawner extends Character{
 
     public void act(){
         if(population.enemies.size()==0){
-            findBestFromDead();
             if(spawnNew) {
+                findBestFromDead();
                 population.enemiesDead.clear();
                 population.newPopulation(theBestEnemyOfGeneration);
                 theBestCurrentEnemy = population.enemies.get(0);
@@ -41,7 +40,7 @@ public class Spawner extends Character{
         }
     }
 
-    public void findBestFromDead(){
+    private void findBestFromDead(){
 
         // if enemies dead is empty (non of the dead enemies was close enough to be added while dead
         // take the best current and add it to the array
@@ -49,14 +48,41 @@ public class Spawner extends Character{
             population.enemiesDead.add(theBestCurrentEnemy);
         }
 
-        theBestEnemyOfGeneration = population.enemiesDead.get(0); //
-
         // find which one of dead enemies that was very close to the player traveled less distance
+//        for(Enemy enemy:population.enemiesDead){
+//            if (enemy.distTraveled <= theBestEnemyOfGeneration.distTraveled) {
+//                theBestEnemyOfGeneration = enemy;
+//            }
+//        }
+
+        // calculate shortest and longest dist from enemies that reached player
+        float shortestTraveledDist = Integer.MAX_VALUE, longestTraveledDist = 0;
         for(Enemy enemy:population.enemiesDead){
-            if (enemy.distTraveled <= theBestEnemyOfGeneration.distTraveled) {
+            if(enemy.distTraveled<shortestTraveledDist){
+                shortestTraveledDist = enemy.distTraveled;
+            }
+            if(enemy.distTraveled>longestTraveledDist){
+                longestTraveledDist = enemy.distTraveled;
+            }
+        }
+        //p.println("Shortest dist: " + shortestTraveledDist+", longest dist: " + longestTraveledDist);
+
+        // calculate route compared to others and general store for each enemy
+        for(Enemy enemy:population.enemiesDead){
+            enemy.routeComparedToOthers = ((longestTraveledDist-enemy.distTraveled)/(longestTraveledDist-shortestTraveledDist))*100;
+            enemy.generalScore = (enemy.routeComparedToOthers * 1 + enemy.percentOfDistOnRoad * 2)/(1+2); // "2" after percent of dist on road is the weight
+        }
+
+        //set the best enemy of generation as the first enemy in enemiesDead array
+        theBestEnemyOfGeneration = population.enemiesDead.get(0);
+
+        // find enemy with best general store and set it as the best enemy of generation
+        for(Enemy enemy:population.enemiesDead){
+            if(enemy.generalScore>theBestEnemyOfGeneration.generalScore){
                 theBestEnemyOfGeneration = enemy;
             }
         }
+
     }
 
     public void spawnSaved(){

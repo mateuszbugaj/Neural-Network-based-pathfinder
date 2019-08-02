@@ -1,3 +1,4 @@
+import basicneuralnetwork.activationfunctions.ActivationFunction;
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -23,7 +24,7 @@ public class Population {
 
     public void newPopulation(){
         for(int i = 0;i<populationNumber;i++){
-            enemies.add(new Enemy(p,initialPosition.copy(),enemyLook,2,1));
+            enemies.add(new Enemy(p,initialPosition.copy(),enemyLook,0,1));
             enemies.get(i).index = i;
         }
         generationCount++;
@@ -31,9 +32,21 @@ public class Population {
 
     public void newPopulation(Enemy enemyToClone){
         for(int i = 0;i<populationNumber;i++){
-            enemies.add(new Enemy(p,initialPosition.copy(),enemyLook,2,1,enemyToClone.brain.copy()));
+            enemies.add(new Enemy(p,initialPosition.copy(),enemyLook,0,1,enemyToClone.brain.copy()));
             enemies.get(i).index = i;
-            enemies.get(i).brain.mutate(0.1);
+            if(generationCount<150) {
+                enemies.get(i).brain.mutate(0.1);
+                //enemies.get(i).brain.merge(enemyToClone.brain,0.2);
+            } else if(generationCount<700) {
+                enemies.get(i).brain.mutate(0.08);
+                //enemies.get(i).brain.merge(enemyToClone.brain,0.2);
+            } else if(generationCount<1500) {
+                enemies.get(i).brain.mutate(0.01);
+                //enemies.get(i).brain.merge(enemyToClone.brain,0.2);
+            }else {
+                enemies.get(i).brain.mutate(0.001);
+                //enemies.get(i).brain.merge(enemyToClone.brain,0.2);
+            }
         }
         generationCount++;
     }

@@ -53,7 +53,7 @@ public class Character {
     }
 
     public float calculateAngleToTarget(PVector targetPos){
-        return p.atan2(targetPos.y - position.y, targetPos.x - position.x);
+        return p.atan2(position.y - targetPos.y, position.x - targetPos.x) + p.PI;
     }
 
 
