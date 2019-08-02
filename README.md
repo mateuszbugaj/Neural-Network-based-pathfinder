@@ -1,3 +1,5 @@
 # Neural network based pathfinder
+
+![alt text](https://imgur.com/my53PDB.png)
  
-https://imgur.com/t/neural_network/SMmfKF3
+Video: https://imgur.com/t/neural_network/SMmfKF3
