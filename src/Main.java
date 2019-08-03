@@ -1,6 +1,8 @@
 import processing.core.PApplet;
 import processing.core.PVector;
 
+import java.util.ArrayList;
+
 public class Main extends PApplet {
     public static void main(String[] args){
         PApplet.main("Main", args);
@@ -20,6 +22,8 @@ public class Main extends PApplet {
     Player player;
     Spawner spawner;
     Road road;
+    ArrayList<Obstacle> obstacles = new ArrayList<>();
+
 
     int cycles = 1; // number of cycles program makes for every frame
     boolean routeDisplay = false; // boolean to show route enemies make
@@ -30,7 +34,9 @@ public class Main extends PApplet {
         player = new Player(this,new PVector(random(width),random(height)),playerLook,5,10);
         spawner = new Spawner(this,new PVector(width*0.4f,height*0.5f), spawnerLook,0,10, look);
         road = new Road(this,player.position.copy(),spawner.position.copy());
+        generateNewObstacles(40);
     }
+
 
     public void draw(){
         for(int k = 0;k<cycles;k++) { // for certain number of cycles
@@ -43,11 +49,16 @@ public class Main extends PApplet {
                 player.position = new PVector(random(width),random(height));
                 road = new Road(this,player.position.copy(),spawner.position.copy());
                 //player.shootAndStop(15);
+                generateNewObstacles(40);
             }
-
 
             road.show(); // shows road, creates road's polygon
             spawner.show();
+
+            for(Obstacle obstacle: obstacles){
+                obstacle.show();
+            }
+
             spawner.act(); // create new generation if conditions are met
 
 
@@ -57,10 +68,38 @@ public class Main extends PApplet {
                 enemy.updateTargetPos(player.position);
                 enemy.update();
 
-                for(Ray ray:enemy.rays){
+
+                PVector[][] allLines = new PVector[obstacles.size()*4][2];
+                int counter = 0;
+                for(int i = 0;i<allLines.length;i=i+4){
+                    allLines[i] = obstacles.get(counter).lines[0];
+                    allLines[i+1] = obstacles.get(counter).lines[1];
+                    allLines[i+2] = obstacles.get(counter).lines[2];
+                    allLines[i+3] = obstacles.get(counter).lines[3];
+//                    allLines[i] = new PVector[]{obstacles.get(counter).obstacleShape.getVertex(0),obstacles.get(counter).obstacleShape.getVertex(1)};
+//                    allLines[i+1] = new PVector[]{obstacles.get(counter).obstacleShape.getVertex(2),obstacles.get(counter).obstacleShape.getVertex(3)};
+//                    allLines[i+2] = new PVector[]{obstacles.get(counter).obstacleShape.getVertex(4),obstacles.get(counter).obstacleShape.getVertex(5)};
+//                    allLines[i+4] = new PVector[]{obstacles.get(counter).obstacleShape.getVertex(6),obstacles.get(counter).obstacleShape.getVertex(7)};
+                    counter++;
+                }
+
+
+                for(Ray ray:enemy.roadRays){
                     ray.updateAngle(enemy.rotation);
-                    ray.cast(road);
+                    ray.cast(road.lines);
                     //ray.cast(road.lines[2]);
+                }
+
+                for(Ray ray:enemy.obstacleRays){
+                    ray.updateAngle(enemy.rotation);
+                    ray.cast(allLines);
+                    //println(ray.dist);
+                }
+
+                for(Obstacle obstacle:obstacles){
+                    if(obstacle.polygon.contains(enemy.position.x,enemy.position.y)){
+                        enemy.isDead = true;
+                    }
                 }
 
                 enemy.marchingRay.moveRay(road,enemy.rotation);
@@ -129,6 +168,29 @@ public class Main extends PApplet {
         } popMatrix();
     }
 
+    public void generateNewObstacles(int amount){
+        obstacles.clear();
+        for(int i = 0;i<amount;i++){
+            PVector c = new PVector(random(width), random(height));
+            int tries = 1000;
+            while(overlap(c) && tries>0){
+                c = new PVector(random(width), random(height));
+                tries--;
+            }
+            if(!overlap(c)){
+                obstacles.add(new Obstacle(this,c,i));
+            }
+        }
+    }
+
+    public boolean overlap(PVector c){
+        for(Obstacle obstacle: obstacles){
+            if(obstacle.position.dist(c)<obstacle.spaceBetween || player.position.dist(c)<80 || spawner.position.dist(c)<150){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void keyReleased()
     {
