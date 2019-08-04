@@ -52,7 +52,7 @@ public class Enemy extends Character{
 
     Ray marchingRay;
     Ray[] roadRays = new Ray[2];
-    Ray[] obstacleRays = new Ray[7];
+    Ray[] obstacleRays = new Ray[13];
     boolean isOnRoad = false;
     float[] RGBRoadPosition = new float[3];
     float roadAngle;
@@ -271,13 +271,11 @@ public class Enemy extends Character{
     void createRays(){
         roadRays[0] = new Ray(p,position,p.radians(40),200);
         roadRays[1] = new Ray(p,position,p.radians(-40),200);
-        obstacleRays[0] = new Ray(p,position,p.radians(30), 100);
-        obstacleRays[1] = new Ray(p,position,p.radians(20), 100);
-        obstacleRays[2] = new Ray(p,position,p.radians(10), 100);
-        obstacleRays[3] = new Ray(p,position,p.radians(0), 100);
-        obstacleRays[4] = new Ray(p,position,p.radians(-10), 100);
-        obstacleRays[5] = new Ray(p,position,p.radians(-20), 100);
-        obstacleRays[6] = new Ray(p,position,p.radians(-30), 100);
+
+        for(int i = 0;i<obstacleRays.length;i++){
+            obstacleRays[i] = new Ray(p,position,p.radians(-60+i*10),200);
+        }
+
         marchingRay = new Ray(p,position,p.width);
     }
 
@@ -357,12 +355,13 @@ public class Enemy extends Character{
         p.rect(10,280,170,200);
         p.rectMode(CENTER);
 
+        // show obstacleRays
         p.pushMatrix();
         {
             p.translate(20,240);
             for (int i = 0; i < obstacleRays.length; i++) {
-                p.fill(p.map(obstacleRays[i].dist, 0, obstacleRays[i].raySight, 0, 255));
-                p.rect(15+20*i,15,20,30);
+                p.fill(p.map(obstacleRays[obstacleRays.length - i - 1].dist, 0, obstacleRays[obstacleRays.length - i - 1].raySight, 0, 255));
+                p.rect(15+(150/obstacleRays.length)*i,15,(150/obstacleRays.length),30);
             }
         } p.popMatrix();
 
