@@ -52,7 +52,7 @@ public class Enemy extends Character{
 
     Ray marchingRay;
     Ray[] roadRays = new Ray[2];
-    Ray[] obstacleRays = new Ray[13];
+    Ray[] obstacleRays = new Ray[6];
     boolean isOnRoad = false;
     float[] RGBRoadPosition = new float[3];
     float roadAngle;
@@ -67,7 +67,7 @@ public class Enemy extends Character{
     public Enemy(PApplet p, PVector position, Look look, float speed, float health) {
         super(p, position, look, speed, health);
         sprite = p.loadImage("Sprite.png");
-        brain = new NeuralNetwork(RGBPosition.length+RGBRoadPosition.length+rayReadings.length + obstacleRayReadings.length+3,2,20,2);
+        brain = new NeuralNetwork(RGBPosition.length+RGBRoadPosition.length+rayReadings.length + obstacleRayReadings.length+3,2,16,2);
         brain.setActivationFunction(ActivationFunction.SIGMOID);
         creationTime = p.frameCount;
         createRays();
@@ -272,9 +272,15 @@ public class Enemy extends Character{
         roadRays[0] = new Ray(p,position,p.radians(40),200);
         roadRays[1] = new Ray(p,position,p.radians(-40),200);
 
-        for(int i = 0;i<obstacleRays.length;i++){
-            obstacleRays[i] = new Ray(p,position,p.radians(-60+i*10),200);
-        }
+//        for(int i = 0;i<obstacleRays.length;i++){
+//            obstacleRays[i] = new Ray(p,position,p.radians(-60+i*10),200);
+//        }
+        obstacleRays[0] = new Ray(p,position,p.radians(-30),100);
+        obstacleRays[1] = new Ray(p,position,p.radians(-20),100);
+        obstacleRays[2] = new Ray(p,position,p.radians(-10),100);
+        obstacleRays[3] = new Ray(p,position,p.radians(10),100);
+        obstacleRays[4] = new Ray(p,position,p.radians(20),100);
+        obstacleRays[5] = new Ray(p,position,p.radians(30),100);
 
         marchingRay = new Ray(p,position,p.width);
     }
@@ -350,7 +356,8 @@ public class Enemy extends Character{
 
         p.text("INFO",15,230);
         p.rectMode(CORNER);
-        p.noFill();
+        //p.noFill();
+        p.fill(227, 218, 193);
         p.stroke(107, 139, 143);
         p.rect(10,280,170,200);
         p.rectMode(CENTER);
@@ -366,6 +373,8 @@ public class Enemy extends Character{
         } p.popMatrix();
 
         p.line(180,p.map(position.y,0,p.height+p.height/2,280,280+200),position.x,position.y);
+
+
 
         // rotations info
         p.pushMatrix();
@@ -383,10 +392,16 @@ public class Enemy extends Character{
             p.text("R: " +(int) RGBPosition[0],10,70);
             p.text("G: " +(int) RGBPosition[1],10,80);
             p.text("B: " +(int) RGBPosition[2],10,90);
+            p.fill((int) RGBPosition[0],(int) RGBPosition[1],(int) RGBPosition[2]);
+            p.rect(80,80,10,10);
+            p.fill(0);
             p.text("Road RGB pos: ",0,100);
             p.text("R: " +(int) RGBRoadPosition[0],10,110);
             p.text("G: " +(int) RGBRoadPosition[1],10,120);
             p.text("B: " +(int) RGBRoadPosition[2],10,130);
+            p.fill((int) RGBRoadPosition[0],(int) RGBRoadPosition[1],(int) RGBRoadPosition[2]);
+            p.rect(80,120,10,10);
+            p.fill(0);
             p.text("Is on road: "+ isOnRoad,0,140);
             p.text("Dist to target: "+(int) targetDist,0,150);
             p.text("Dist to road: "+(int) marchingRay.smallestDistToRoad,0,160);

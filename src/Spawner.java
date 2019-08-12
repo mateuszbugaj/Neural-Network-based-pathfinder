@@ -48,12 +48,6 @@ public class Spawner extends Character{
             population.enemiesDead.add(theBestCurrentEnemy);
         }
 
-        // find which one of dead enemies that was very close to the player traveled less distance
-//        for(Enemy enemy:population.enemiesDead){
-//            if (enemy.distTraveled <= theBestEnemyOfGeneration.distTraveled) {
-//                theBestEnemyOfGeneration = enemy;
-//            }
-//        }
 
         // calculate shortest and longest dist from enemies that reached player
         float shortestTraveledDist = Integer.MAX_VALUE, longestTraveledDist = 0;
@@ -65,12 +59,11 @@ public class Spawner extends Character{
                 longestTraveledDist = enemy.distTraveled;
             }
         }
-        //p.println("Shortest dist: " + shortestTraveledDist+", longest dist: " + longestTraveledDist);
 
         // calculate route compared to others and general store for each enemy
         for(Enemy enemy:population.enemiesDead){
             enemy.routeComparedToOthers = ((longestTraveledDist-enemy.distTraveled)/(longestTraveledDist-shortestTraveledDist))*100;
-            enemy.generalScore = (enemy.routeComparedToOthers * 1 + enemy.percentOfDistOnRoad * 2)/(1+2); // "2" after percent of dist on road is the weight
+            enemy.generalScore = (enemy.routeComparedToOthers * 1 + enemy.percentOfDistOnRoad * 3)/(1+3); // "3" after percent of dist on road is the weight
         }
 
         //set the best enemy of generation as the first enemy in enemiesDead array

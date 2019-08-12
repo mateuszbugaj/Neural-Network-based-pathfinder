@@ -22,7 +22,8 @@ public class Main extends PApplet {
     Player player;
     Spawner spawner;
     Road road;
-    ArrayList<Obstacle> obstacles = new ArrayList<>();
+    ArrayList<Obstacle> obstacles = new ArrayList<>(); // all obstacles
+    PVector[][] allLines = new PVector[obstacles.size()*4][2]; // all lines making all obstacles
 
 
     int cycles = 1; // number of cycles program makes for every frame
@@ -42,8 +43,8 @@ public class Main extends PApplet {
         for(int k = 0;k<cycles;k++) { // for certain number of cycles
             background(227, 217, 172);
 
-            // randomize player's position if all enemies are dead and spawn new is enabled
-            // clear player's bullet array, update road position (* and create some still bullets around player)
+            //if all enemies are dead and spawnNew is enabled
+            // choose new random player's position, clear bullets array, update road, and generate new obstacles
             if(spawner.population.enemies.size()==0 && spawner.spawnNew){
                 player.bullets.clear();
                 player.position = new PVector(random(width),random(height));
@@ -55,79 +56,68 @@ public class Main extends PApplet {
             road.show(); // shows road, creates road's polygon
             spawner.show();
 
+            // show all obstacles
             for(Obstacle obstacle: obstacles){
                 obstacle.show();
             }
-
             spawner.act(); // create new generation if conditions are met
 
-
-
-            for (Enemy enemy : spawner.population.enemies) {
+            for (Enemy enemy : spawner.population.enemies) { // for every enemy
+                // update frameCountFactor and target position
                 enemy.frameCountFactor = cycles;
                 enemy.updateTargetPos(player.position);
                 enemy.update();
 
-
-                PVector[][] allLines = new PVector[obstacles.size()*4][2];
-                int counter = 0;
-                for(int i = 0;i<allLines.length;i=i+4){
-                    allLines[i] = obstacles.get(counter).lines[0];
-                    allLines[i+1] = obstacles.get(counter).lines[1];
-                    allLines[i+2] = obstacles.get(counter).lines[2];
-                    allLines[i+3] = obstacles.get(counter).lines[3];
-//                    allLines[i] = new PVector[]{obstacles.get(counter).obstacleShape.getVertex(0),obstacles.get(counter).obstacleShape.getVertex(1)};
-//                    allLines[i+1] = new PVector[]{obstacles.get(counter).obstacleShape.getVertex(2),obstacles.get(counter).obstacleShape.getVertex(3)};
-//                    allLines[i+2] = new PVector[]{obstacles.get(counter).obstacleShape.getVertex(4),obstacles.get(counter).obstacleShape.getVertex(5)};
-//                    allLines[i+4] = new PVector[]{obstacles.get(counter).obstacleShape.getVertex(6),obstacles.get(counter).obstacleShape.getVertex(7)};
-                    counter++;
-                }
-
-
+                // for every roadRay
+                // update angle and cast using road lines
                 for(Ray ray:enemy.roadRays){
                     ray.updateAngle(enemy.rotation);
                     ray.cast(road.lines);
-                    //ray.cast(road.lines[2]);
                 }
 
+                // for every obstacleRay
+                // update angle and cast using all obstacles lines
                 for(Ray ray:enemy.obstacleRays){
                     ray.updateAngle(enemy.rotation);
                     ray.cast(allLines);
-                    //println(ray.dist);
                 }
 
+                // for every obstacle check if position of enemy is in polygon
+                // if it is, mark enemy as dead
                 for(Obstacle obstacle:obstacles){
                     if(obstacle.polygon.contains(enemy.position.x,enemy.position.y)){
                         enemy.isDead = true;
                     }
                 }
 
-                enemy.marchingRay.moveRay(road,enemy.rotation);
-                enemy.checkForRoad(road.polygon);
-                enemy.move();
-                enemy.show();
-                enemy.route(routeDisplay); // show route only if the option is enabled
-                enemy.findClosestBullet(player.bullets);
-                enemy.timeLived++;
+                enemy.marchingRay.moveRay(road,enemy.rotation); // move marching ray, cast it using road lines and update rotation
+                enemy.checkForRoad(road.polygon); // check if enemy is on road
+                enemy.move(); // move enemy
+                enemy.show(); // show enemy
+                enemy.route(routeDisplay); //calculate route, show only if the option is enabled
+                enemy.findClosestBullet(player.bullets); // find closest bullet
+                enemy.timeLived++; // update time lived
 
+                // if enemy is dead while being close to the target, move it to the enemiesDead array
                 if(enemy.isDead == true && enemy.targetDist<10){
                     spawner.population.enemiesDead.add(enemy);
                 }
             }
 
+            // show and move every bullet
             for(Projectile projectile:player.bullets){
                 projectile.show();
                 projectile.move();
             }
 
-            spawner.population.enemies.removeIf(i -> i.isDead);
-            player.bullets.removeIf(i -> i.isDead);
+            spawner.population.enemies.removeIf(i -> i.isDead); // delete all enemies that are marked as dead
+            player.bullets.removeIf(i -> i.isDead); // remove all bullets
 
-            player.show();
-            player.rotation = player.calculateAngleToTarget(new PVector(mouseX, mouseY));
-            player.move(control);
+            player.show(); // show player
+            player.rotation = player.calculateAngleToTarget(new PVector(mouseX, mouseY)); //update player's rotation
+            player.move(control); // move player using controls
 
-            UI();
+            UI(); // show UI
 
         }
     }
@@ -169,7 +159,13 @@ public class Main extends PApplet {
     }
 
     public void generateNewObstacles(int amount){
-        obstacles.clear();
+        obstacles.clear(); // clear existing obstacles before generating new
+
+        // for given amount of obstacles
+        // create position vector, check if it overlaps with eny existing obstacle and
+        // if it does, create new position vector and do it 1000 times or while it still overlaps
+        // if created vector doesn't overlap, create obstacle using it as position
+        // update allLines with new lines
         for(int i = 0;i<amount;i++){
             PVector c = new PVector(random(width), random(height));
             int tries = 1000;
@@ -181,9 +177,19 @@ public class Main extends PApplet {
                 obstacles.add(new Obstacle(this,c,i));
             }
         }
-    }
 
+        allLines = new PVector[obstacles.size()*4][2];
+        int counter = 0;
+        for(int i = 0;i<allLines.length;i=i+4){
+            allLines[i] = obstacles.get(counter).lines[0];
+            allLines[i+1] = obstacles.get(counter).lines[1];
+            allLines[i+2] = obstacles.get(counter).lines[2];
+            allLines[i+3] = obstacles.get(counter).lines[3];
+            counter++;
+        }
+    }
     public boolean overlap(PVector c){
+        // check if proposed position overlap with any existing obstacle
         for(Obstacle obstacle: obstacles){
             if(obstacle.position.dist(c)<obstacle.spaceBetween || player.position.dist(c)<80 || spawner.position.dist(c)<150){
                 return true;

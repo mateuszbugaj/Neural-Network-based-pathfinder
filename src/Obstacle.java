@@ -15,7 +15,7 @@ public class Obstacle {
     PVector[][] lines;
     Polygon polygon;
     PShape obstacleShape;
-    float spaceBetween = 100;
+    float spaceBetween = 150;
     ArrayList<Obstacle> others;
     int index;
 
