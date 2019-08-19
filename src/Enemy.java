@@ -46,9 +46,9 @@ public class Enemy extends Character{
     float maxAcceleration = 8;
     float maxTurningSpeed = 15;
 
-//    float acceleration;
-//    float maxSpeedAcceleration = 0.01f;
-//    float maxSpeed = 2.5f;
+    float acceleration;
+    float maxSpeedAcceleration = 0.01f;
+    float maxSpeed = 2.5f;
 
     Ray marchingRay;
     Ray[] roadRays = new Ray[2];

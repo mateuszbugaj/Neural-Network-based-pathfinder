@@ -16,7 +16,6 @@ public class Obstacle {
     Polygon polygon;
     PShape obstacleShape;
     float spaceBetween = 150;
-    ArrayList<Obstacle> others;
     int index;
 
     public Obstacle(PApplet p,PVector position, int index) {

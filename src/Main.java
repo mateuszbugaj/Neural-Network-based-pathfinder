@@ -188,6 +188,7 @@ public class Main extends PApplet {
             counter++;
         }
     }
+
     public boolean overlap(PVector c){
         // check if proposed position overlap with any existing obstacle
         for(Obstacle obstacle: obstacles){
