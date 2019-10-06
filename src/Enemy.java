@@ -223,7 +223,7 @@ public class Enemy extends Character{
 
     public float[] HtoRGB(float Hue){
         // turn target angle into RGB color
-        float[] RGBResoult;
+        float[] RGBResult;
         float S = 1; // saturation 0-1
         float V = 1; // value 0-1
         float C, X, m;
@@ -263,8 +263,8 @@ public class Enemy extends Character{
             GPrim = 0;
             BPrim = X;
         }
-        RGBResoult = new float[]{(RPrim+m)*255,(GPrim+m)*255,(BPrim+m)*255};
-        return RGBResoult;
+        RGBResult = new float[]{(RPrim+m)*255,(GPrim+m)*255,(BPrim+m)*255};
+        return RGBResult;
     }
 
 
